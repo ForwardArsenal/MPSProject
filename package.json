@@ -1,0 +1,31 @@
+{
+  "name": "mps-project",
+  "version": "1.0.0",
+  "description": "The MPS Project featuring on building a mobile social network app for stress detection and management.",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./bin/webserver.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ForwardArsenal/MPSProject.git"
+  },
+  "author": "Xing Wei, Christine Geeng, Franziska Wittleder",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ForwardArsenal/MPSProject/issues"
+  },
+  "homepage": "https://github.com/ForwardArsenal/MPSProject#readme",
+  "dependencies": {
+    "async": "^2.0.1",
+    "body-parser": "^1.15.2",
+    "debug": "^2.2.0",
+    "express": "^4.14.0",
+    "mongodb": "^2.2.10",
+    "mongoose": "^4.6.3"
+  }
+}

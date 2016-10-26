@@ -6,4 +6,5 @@ var ctrlMain = require('../controllers/main');
 router.get('/homepage', ctrlMain.getHomepage);
 
 
+
 module.exports = router;

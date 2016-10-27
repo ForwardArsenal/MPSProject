@@ -1,0 +1,6 @@
+{
+	"dbURI": "mongodb://localhost/MPSProject",
+	"chatServerURL": "http://localhost:5000",
+	"webServerPort": 3000,
+	"chatServerPort": 5000
+}

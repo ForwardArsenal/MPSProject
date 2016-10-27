@@ -2,8 +2,8 @@ var mongoose = require('mongoose');
 require('./group');
 require('./groupchatMsg');
 require('./user');
+var config = require('../config');
 
-var dbURI = 'mongodb://localhost/MPSProject';
 //var chatDB = mongoose.createConnection(dbURI);
 var models = {
 	group: mongoose.model('Group'),
@@ -39,7 +39,7 @@ function Persistence(callback){
 }
 
 Persistence.prototype.connect = function(cb){
-	mongoose.connect(dbURI, cb);
+	mongoose.connect(config.dbURI, cb);
 }
 
 Persistence.prototype.getModel = function(modelName){
@@ -47,7 +47,7 @@ Persistence.prototype.getModel = function(modelName){
 }
 /* Listen for Mongoose connection events and output the statuses to console */
 mongoose.connection.on('connected', function(){
-	console.log('Mongoose connected to '+dbURI);
+	console.log('Mongoose connected to '+config.dbURI);
 });
 
 mongoose.connection.on('error', function(err){

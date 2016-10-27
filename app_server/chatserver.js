@@ -1,9 +1,8 @@
 var async = require('async');
 var ChatService = require('./services/chatService');
 var Persistence = require('./models/db');
+var config = require('./config');
 
-
-var chatServerPort = 5000;
 var sockets = {};
 var chatService;
 var persistence;
@@ -26,8 +25,8 @@ var startChatService = function(next){
 var startChatServer = function(next){
 	var httpServer = require('http').createServer();
 	var chatServer = require('socket.io')(httpServer);
-    httpServer.listen(chatServerPort, function(){
-    	console.log('chat server listens at port %d', chatServerPort);
+    httpServer.listen(config.chatServerPort, function(){
+    	console.log('chat server listens at port %d', config.chatServerPort);
     });
     chatServer.on('connection', function(socket){
     	var userId;

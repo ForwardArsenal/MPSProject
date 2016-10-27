@@ -1,6 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var routesAPI = require('./routes/index');
+var config = require('./config');
 
 var app = express();
 
@@ -15,7 +16,7 @@ app.use(function(req, res, next){
 	next(err);
 });
 
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || config.webServerPort);
 
 // start the web server
 module.exports.start = function(){

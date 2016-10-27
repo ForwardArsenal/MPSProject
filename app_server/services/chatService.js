@@ -1,7 +1,5 @@
 var async = require('async');
 
-var groupchatModel;
-var userModel;
 // constructor of the chat service object
 function ChatService(opts){
     this.persistence = opts.persistence;
@@ -79,8 +77,7 @@ ChatService.prototype.sendMsg = function(data, socket){
                             groupId: data.groupId,
                             senderId: data.userId,
                             senderName: senderName,
-                            content: data.msgContent
-                            
+                            content: data.msgContent   
         			    });
                         console.log("The message has been sent to "+id);
         		    }

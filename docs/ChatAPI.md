@@ -1,6 +1,6 @@
 **Chat APIs**
 ----
-  <_this set of APIs is used to send groupchat messages to the chat server and listen for any incoming messages. Make sure the "chat-api.js" file is imported in the source code before using the APIs_>
+  <_this set of APIs is used to send groupchat messages to the chat server and listen for any incoming messages. Make sure the "chat-api.js" file is imported in the source code before using the APIs. And please also note that only the rest of the group members (not including sender) will receive the message forwarded from the chat server._>
 
 > **ChatClient(userId: int):**
   instantiate a ChatClient object, the only argument that is passed to this constructor is the userId, which is an integer. 

@@ -54,7 +54,12 @@ Persistence.prototype.getModel = function(modelName){
 }
 /* Listen for Mongoose connection events and output the statuses to console */
 mongoose.connection.on('connected', function(){
-	console.log('Mongoose connected to '+config.dbURI);
+	if(process.env.NODE_ENV === 'production'){
+		console.log('Mongoose connected to '+process.env.MONGODB_URI);
+	}
+	else{
+	    console.log('Mongoose connected to '+config.localDbURI);
+    }
 });
 
 mongoose.connection.on('error', function(err){

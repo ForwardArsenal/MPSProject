@@ -1,4 +1,4 @@
-var io = require('socket.io-client');
+//var io = require('socket.io-client');
 //var events = require('events');
 var liveChatServerURL = "https://agile-savannah-12064.herokuapp.com";
 var options = {
@@ -7,13 +7,13 @@ var options = {
 };
 
 // constructor of the chat client object
-function ChatClient(userId){
-	this.io = require('socket.io-client');
+function ChatClient(io, eventEmitter, userId){
+	//this.io = require('socket.io-client');
 	this.client = io.connect(liveChatServerURL, options);
 	this.userId = userId;
 	this.setup(userId);
 	this.msgStack = [];
-	//this.eventEmitter = new events.EventEmitter();
+	this.eventEmitter = eventEmitter;
 	/* make the msgStack observable by defining an event which is going to be fired
 	when new message is pushed onto the stack, and registering a listener for the event. */
 	(function(arr, eventEmitter, callback){
@@ -21,8 +21,8 @@ function ChatClient(userId){
 		    Array.prototype.push.call(arr, e);
 		    callback(eventEmitter);
 	    };
-    })(this.msgStack, this.client, function(em){
-        em.emit('newMsgReceived');
+    })(this.msgStack, this.eventEmitter, function(em){
+        em.emit('newMsgReceived', { info: "new message has been received!" });
     });
 }
 
@@ -63,6 +63,6 @@ ChatClient.prototype.getMostRecentMsg = function(){
 }
 ChatClient.prototype.ready = function(){
 	var self = this;
-	return self.client;
+	return self.eventEmitter;
 }
 module.exports = ChatClient;

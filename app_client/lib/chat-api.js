@@ -5,7 +5,7 @@ var moment = require('moment');
 
 var options = {
     transports: ['websocket'],
-	'force new connection': false
+	'force new connection': true
 };
 
 // constructor of the chat client object
@@ -21,7 +21,6 @@ function ChatClient(userId){
 	(function(arr, eventEmitter, callback){
 	    arr.push = function(e){
 		    Array.prototype.push.call(arr, e);
-		    console.log("Triggers the callback to emit new message received event!");
 		    callback(eventEmitter);
 	    };
     })(this.msgStack, this.eventEmitter, function(em){
@@ -51,16 +50,21 @@ ChatClient.prototype.setup = function(userId){
         		creationTime: data.creationTime
         	}
             self.msgStack.push(msg);
-            console.log("New message pushed onto the stack!");
 	    });
+	    /*
 	    self.client.on('msgReply', function(obj){
 	    	console.log("The retured status code is "+obj.ret);
-	    });      
+	    });
+	    */      
     });
 }
 /* retrieve the most recent message */
 ChatClient.prototype.getMostRecentMsg = function(){
 	var self = this;
     return self.msgStack[self.msgStack.length-1];
+}
+ChatClient.prototype.ready = function(){
+	var self = this;
+	return self.eventEmitter;
 }
 module.exports = ChatClient;

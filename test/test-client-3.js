@@ -1,8 +1,7 @@
 var ChatClient = require('../app_client/lib/chat-api');
 var client3 = new ChatClient(3);
 console.log("Start listening for new incoming message!");
-client3.eventEmitter.on('newMsgReceived', function(){
+client3.ready().on('newMsgReceived', function(){
 	var len = client3.msgStack.length;
-	console.log("The returned message retrieved by client"+client3.userId+" is "+client3.getMostRecentMsg().content);
-	console.log("The creation time is "+client3.getMostRecentMsg().creationTime);
+	console.log(client3.getMostRecentMsg().content+"--created at "+client3.getMostRecentMsg().creationTime);
 });

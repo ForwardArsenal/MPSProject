@@ -5,7 +5,7 @@ var client2 = new ChatClient(2);
 var client3 = new ChatClient(3);
 var client4 = new ChatClient(4);
 
-client1.sendMessage('Tom', 1, "stress", "Hello guys!");
+client1.sendMessage('Tom', 1, "stress", "Good afternoon everyone!");
 client2.eventEmitter.on('newMsgReceived', function(){
 	var len = client2.msgStack.length;
 	console.log("The returned message retrieved by client"+client2.userId+" is "+client2.getMostRecentMsg().content);

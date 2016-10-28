@@ -96,6 +96,7 @@ ChatService.prototype.sendMsg = function(data, socket){
         		    	},
         		    	function(err, doc){
                             if(err) return next(err);
+                            console.log("For "+id+", the new message has been inserted to db");
                             callback();
         		    	}
         		    );

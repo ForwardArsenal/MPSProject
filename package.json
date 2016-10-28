@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "node ./node_modules/mocha/bin/mocha",
-    "start": "node ./bin/entry.js -s webserver"
+    "start": "node ./bin/entry.js -s chatserver"
   },
   "repository": {
     "type": "git",

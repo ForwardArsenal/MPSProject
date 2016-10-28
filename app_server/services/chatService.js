@@ -90,6 +90,7 @@ ChatService.prototype.sendMsg = function(data, socket){
         		    		groupName: groupName,
         		    		senderId: data.userId,
         		    		senderName: senderName,
+                            receiverId: id,
         		    		content: data.content,
                             creationTime: data.creationTime
         		    	},

@@ -7,7 +7,7 @@ switch(argv.s){
 	case 'webserver':
 	    server = require('../app_server/webserver');
 	    break;
-	case 'sioserver':
+	case 'chatserver':
 	    server = require('../app_server/chatserver');
 	    break;
 	default:

@@ -39,7 +39,14 @@ function Persistence(callback){
 }
 
 Persistence.prototype.connect = function(cb){
-	mongoose.connect(config.dbURI, cb);
+	var dbURI;
+	if(process.env.NODE_ENV === 'production'){
+		dbURI = process.env.MONGODB_URI;
+	}
+	else{
+		dbURI = config.localDbURI;
+	}
+	mongoose.connect(dbURI, cb);
 }
 
 Persistence.prototype.getModel = function(modelName){

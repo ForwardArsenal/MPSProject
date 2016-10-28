@@ -8,7 +8,7 @@
 var chatClient = new ChatClient(1);
 
   
->  **ChatClient#sendMessage(userName: String, groupId: int, groupName: String, content: String):**
+> **ChatClient#sendMessage(userName: String, groupId: int, groupName: String, content: String):**
  invoke the sendMessage method on the ChatClient object. 
 + **eg.** &nbsp;&nbsp; chatClient.sendMessage("Tom", 1, "stress", "Hello guys!");
 

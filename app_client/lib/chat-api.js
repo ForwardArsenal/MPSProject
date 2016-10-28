@@ -11,7 +11,7 @@ var options = {
 // constructor of the chat client object
 function ChatClient(userId){
 	this.io = require('socket.io-client');
-	this.client = io.connect(config.chatServerURL, options);
+	this.client = io.connect(config.liveChatServerURL, options);
 	this.userId = userId;
 	this.setup(userId);
 	this.msgStack = [];

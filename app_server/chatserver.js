@@ -25,7 +25,7 @@ var startChatService = function(next){
 var startChatServer = function(next){
 	var httpServer = require('http').createServer();
 	var chatServer = require('socket.io')(httpServer);
-    httpServer.listen(config.chatServerPort, function(){
+    httpServer.listen(process.env.PORT || config.chatServerPort, function(){
     	console.log('chat server listens at port %d', config.chatServerPort);
     });
     chatServer.on('connection', function(socket){

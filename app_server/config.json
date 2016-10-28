@@ -1,6 +1,7 @@
 {
 	"localDbURI": "mongodb://localhost/MPSProject",
-	"chatServerURL": "http://localhost:5000",
+	"localChatServerURL": "http://localhost:5000",
+	"liveChatServerURL": "https://agile-savannah-12064.herokuapp.com",
 	"webServerPort": 3000,
 	"chatServerPort": 5000
 }

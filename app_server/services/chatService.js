@@ -1,4 +1,5 @@
 var async = require('async');
+var moment = require('moment');
 
 // constructor of the chat service object
 function ChatService(opts){
@@ -72,6 +73,7 @@ ChatService.prototype.sendMsg = function(data, socket){
         	receivers.forEach(function(id){
         		tasks.push(function(callback){
         			// forward the message
+                    var formattedTime = moment(data.creationTime).format("DD MMM YYYY hh:mm a");
                     if(self.sockets[id]){
         			    self.sockets[id].emit('message', {
                             groupId: data.groupId,
@@ -79,7 +81,7 @@ ChatService.prototype.sendMsg = function(data, socket){
                             senderId: data.userId,
                             senderName: senderName,
                             content: data.content,
-                            creationTime: data.creationTime   
+                            creationTime: formattedTime  
         			    });
                         console.log("The message has been sent to "+id);
         		    }
@@ -92,7 +94,7 @@ ChatService.prototype.sendMsg = function(data, socket){
         		    		senderName: senderName,
                             receiverId: id,
         		    		content: data.content,
-                            creationTime: data.creationTime
+                            creationTime: formattedTime
         		    	},
         		    	function(err, doc){
                             if(err) return next(err);

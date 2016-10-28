@@ -1,8 +1,6 @@
 var io = require('socket.io-client');
-var config = require('../../app_server/config');
-var events = require('events');
-var moment = require('moment');
-
+//var events = require('events');
+var liveChatServerURL = "https://agile-savannah-12064.herokuapp.com";
 var options = {
     transports: ['websocket'],
 	'force new connection': true
@@ -11,11 +9,11 @@ var options = {
 // constructor of the chat client object
 function ChatClient(userId){
 	this.io = require('socket.io-client');
-	this.client = io.connect(config.liveChatServerURL, options);
+	this.client = io.connect(liveChatServerURL, options);
 	this.userId = userId;
 	this.setup(userId);
 	this.msgStack = [];
-	this.eventEmitter = new events.EventEmitter();
+	//this.eventEmitter = new events.EventEmitter();
 	/* make the msgStack observable by defining an event which is going to be fired
 	when new message is pushed onto the stack, and registering a listener for the event. */
 	(function(arr, eventEmitter, callback){
@@ -23,16 +21,16 @@ function ChatClient(userId){
 		    Array.prototype.push.call(arr, e);
 		    callback(eventEmitter);
 	    };
-    })(this.msgStack, this.eventEmitter, function(em){
+    })(this.msgStack, this.client, function(em){
         em.emit('newMsgReceived');
     });
 }
 
 ChatClient.prototype.sendMessage = function(userName, groupId, groupName, content){
     var self = this;
-    var formattedTime = moment(Date.now()).format("DD MMM YYYY hh:mm a");
+    var curTime = Date.now();
     var message = { userId: self.userId, userName: userName, groupId: groupId, 
-    	groupName: groupName, content: content, creationTime: formattedTime };
+    	groupName: groupName, content: content, creationTime: curTime };
     self.client.emit('sendMsg', message);
 }
 /* setup the event handlers upon instantiation of the chat client object */
@@ -65,6 +63,6 @@ ChatClient.prototype.getMostRecentMsg = function(){
 }
 ChatClient.prototype.ready = function(){
 	var self = this;
-	return self.eventEmitter;
+	return self.client;
 }
 module.exports = ChatClient;

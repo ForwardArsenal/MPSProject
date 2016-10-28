@@ -75,9 +75,11 @@ ChatService.prototype.sendMsg = function(data, socket){
                     if(self.sockets[id]){
         			    self.sockets[id].emit('message', {
                             groupId: data.groupId,
+                            groupName: groupName,
                             senderId: data.userId,
                             senderName: senderName,
-                            content: data.msgContent   
+                            content: data.content,
+                            creationTime: data.creationTime   
         			    });
                         console.log("The message has been sent to "+id);
         		    }
@@ -88,7 +90,8 @@ ChatService.prototype.sendMsg = function(data, socket){
         		    		groupName: groupName,
         		    		senderId: data.userId,
         		    		senderName: senderName,
-        		    		content: data.msgContent
+        		    		content: data.content,
+                            creationTime: data.creationTime
         		    	},
         		    	function(err, doc){
                             if(err) return next(err);

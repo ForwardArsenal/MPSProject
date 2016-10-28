@@ -7,7 +7,8 @@ var groupchatMsgSchema = new mongoose.Schema({
     senderId: { type: Number, required: true },
     senderName: { type: String, required: true },
     msgContent: String,
-    timeStamp: { type: Date, default: Date.now}
+    //timeStamp: { type: Date, default: Date.now }
+    creationTime: { type: String, required: true }
 });
 
 // compile the schema into models

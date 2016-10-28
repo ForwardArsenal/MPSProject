@@ -46,7 +46,10 @@ var startChatServer = function(next){
     	// register listener for the disconnect event
     	socket.on('disconnect', function(){
     	    console.log('userId=%d disconnected!', userId);
-    		if(sockets[userId]) sockets[userId].disconnect(true);
+    		if(sockets[userId]){
+                sockets[userId].disconnect(true);
+                delete sockets[userId];
+            }
     	});
     });
     next();

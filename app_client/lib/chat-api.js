@@ -5,7 +5,7 @@ var moment = require('moment');
 
 var options = {
     transports: ['websocket'],
-	'force new connection': true
+	'force new connection': false
 };
 
 // constructor of the chat client object

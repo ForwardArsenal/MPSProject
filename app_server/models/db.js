@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+mongoose.Promise = global.Promise;
 require('./group');
 require('./groupchatMsg');
 require('./user');
@@ -31,11 +32,11 @@ process.on('SIGTERM', function(){
 
 // constructor of the persistence object
 function Persistence(callback){
+	this.models = models;
     this.connect(function(err){
     	if(err) return callback(err);
     	callback();
     });
-    this.models = models;
 }
 
 Persistence.prototype.connect = function(cb){

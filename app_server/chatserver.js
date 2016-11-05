@@ -32,17 +32,22 @@ var startChatServer = function(next){
     	var userId;
     	// register listener for the registration event
     	// trigger the event only when the connection between client and server has been established for the first time.
-    	socket.on('registration', function(data){
+    	socket.on('joinChatGroup', function(data){
             console.log('a new client with userId=%d is now connected with the chat server', data.userId);
             if(!sockets[data.userId]){
                 userId = data.userId;
                 sockets[data.userId] = socket;
             }
+            chatService.joinChatGroup(data, socket);
     	});
     	// register listener for the sendMsg event
     	socket.on('sendMsg', function(data){
             chatService.sendMsg(data, socket);
     	});
+        // register listener for the fetchHistoryMsg
+        socket.on('fetchHistoryMsg', function(data){
+            chatService.fetchHistoryMsg(data, socket);
+        });
     	// register listener for the disconnect event
     	socket.on('disconnect', function(){
     	    console.log('userId=%d disconnected!', userId);

@@ -14,7 +14,7 @@ function ChatClient(userId, groupId){
 		this.client = io.connect(config.liveChatServerURL, options);
 	}
     else{
-    	this.client = io.connect(config.localChatServerURL);
+    	this.client = io.connect(config.localChatServerURL, options);
     }
 	this.userId = userId;
 	this.groupId = groupId;

@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 
 // define the schema for the user collection
 var userSchema = new mongoose.Schema({
-	userId: { type: String, required: true },
+	userId: { type: Number, required: true },   // type should be string
 	userName: { type: String, required: true },
 	password: { type: String, required: true },
 	groupId: { type: String, required: false },

@@ -126,6 +126,7 @@ ChatService.prototype.joinChatGroup = function(data){
     self.groupModel
         .findOne({groupId: groupId})
         .exec(function(err, group){
+            if(err) console.log(err);
             if(!group.members.includes(userId)){
                 group.members.push(userId);
                 group.save(function(err, group){

@@ -5,7 +5,7 @@ client2.ready().on('newMsgReceived', function(){
 	var len = client2.msgStack.length;
 	console.log(client2.getMostRecentMsg().content+"--created at "+client2.getMostRecentMsg().creationTime+" by "+client2.getMostRecentMsg().userName);
 });
-client2.fetchHistoryMsg(1);
+client2.fetchHistoryMsg(1, 1);
 /*  addListener() is used in the React Native context
 client2.addListener('newMsgReceived', function(){
 	var len = client2.msgStack.length;

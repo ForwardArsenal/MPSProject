@@ -1,3 +1,4 @@
+/*
 var moment = require('moment');
 //console.log(moment(Date.now()).format("DD MMM YYYY hh:mm a"));
 var formattedDate1 = moment(Date.now()).format("DD MMM YYYY hh:mm a");
@@ -20,3 +21,7 @@ sortedArr.forEach(function(item){
     output.push(item.split("&")[1]);
 });
 console.log(output);
+*/
+
+var uuid = require('uuid');
+console.log(uuid.v1());

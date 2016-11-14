@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 
 // define the schema for the groupchat collection
 var groupSchema = new mongoose.Schema({
-	groupId: { type: Number, required: true },
+	groupId: { type: String, required: true },
 	groupName: { type: String, required: true },
     members: [Number]
 });

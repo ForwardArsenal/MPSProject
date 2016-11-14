@@ -9,7 +9,7 @@ function ChatService(opts){
     this.groupModel = this.persistence.getModel('group');
     this.userModel = this.persistence.getModel('user');
 }
-ChatService.prototype.sendMsg = function(data, socket){
+ChatService.prototype.sendMsg = function(data){
 	console.log('running chat service: sendMsg');
     var self = this;
     /*
@@ -38,7 +38,7 @@ ChatService.prototype.sendMsg = function(data, socket){
         			    if(err) return next(err);
         			    if(!doc){
         				    err = 2;
-        				    socket.emit('msgReply', { ret: 2 });
+        				    self.sockets[userId].emit('msgReply', { ret: 2 });
         				    return next(err);
         			    }
         			    senderName = doc.userName;
@@ -54,7 +54,7 @@ ChatService.prototype.sendMsg = function(data, socket){
         			if(err) return next(err);
         			if(!doc){
         				err = 3;
-        				socket.emit('msgReply', { ret: 3 });
+        				self.sockets[data.userId].emit('msgReply', { ret: 3 });
         				return next(err);
         			}
                     if(data.groupName){
@@ -115,11 +115,11 @@ ChatService.prototype.sendMsg = function(data, socket){
 	],
 	function(err){
 		if(err) return;
-		socket.emit('msgReply', { ret: 0 });
+		self.sockets[data.userId].emit('msgReply', { ret: 0 });
 	});    
 };
 
-ChatService.prototype.joinChatGroup = function(data, socket){
+ChatService.prototype.joinChatGroup = function(data){
     var self = this;
     var userId = data.userId;
     var groupId = data.groupId;
@@ -136,11 +136,11 @@ ChatService.prototype.joinChatGroup = function(data, socket){
             else{
                 console.log("User "+userId+" is already a member of the chat group!");
             }
-            socket.emit('joined', { userId: userId, groupName: group.groupName });
+            self.sockets[userId].emit('joined', { userId: userId, groupName: group.groupName });
         });
 };
 
-ChatService.prototype.fetchHistoryMsg = function(data, socket){
+ChatService.prototype.fetchHistoryMsg = function(data){
     var self = this;
     var groupId = data.groupId;
     self.groupChatModel.find({groupId: groupId}, function(err, doc){
@@ -153,7 +153,9 @@ ChatService.prototype.fetchHistoryMsg = function(data, socket){
             item.creationTime = item.creationTime.split("&")[1];
             output.push(item);
         });
-        socket.emit("historyMsgReceived", output);
+        if(self.sockets[data.userId]){
+            self.sockets[data.userId].emit("historyMsgReceived", output);
+        }
     });
 };
 module.exports = ChatService;

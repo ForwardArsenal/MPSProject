@@ -75,9 +75,9 @@ ChatClient.prototype.ready = function(){
 	var self = this;
 	return self.eventEmitter;
 }
-ChatClient.prototype.fetchHistoryMsg = function(groupId){
+ChatClient.prototype.fetchHistoryMsg = function(groupId, userId){
     var self = this;
-    self.client.emit('fetchHistoryMsg', { groupId: groupId });
+    self.client.emit('fetchHistoryMsg', { groupId: groupId, userId: userId });
     self.client.on('historyMsgReceived', function(data){
     	console.log(data);
     });

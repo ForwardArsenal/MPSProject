@@ -38,11 +38,11 @@ var startChatServer = function(next){
                 userId = data.userId;
                 sockets[data.userId] = socket;
             }
-            chatService.joinChatGroup(data, socket);
+            chatService.joinChatGroup(data);
     	});
     	// register listener for the sendMsg event
     	socket.on('sendMsg', function(data){
-            chatService.sendMsg(data, socket);
+            chatService.sendMsg(data);
     	});
         // register listener for the fetchHistoryMsg
         socket.on('fetchHistoryMsg', function(data){

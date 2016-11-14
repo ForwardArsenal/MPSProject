@@ -11,9 +11,9 @@ var rl = readline.createInterface({
 });
 
 rl.question('Send message one: ', function(message){
-    client1.sendMessage('Tom', 1, "stress", message);
+    client1.sendMessage('Jeff', 1, "stress", message);
     rl.question('Send message two: ', function(message){
-        client1.sendMessage('Tom', 1, "stress", message);
+        client1.sendMessage('Jeff', 1, "stress", message);
         rl.close();
     });
 });

@@ -76,10 +76,10 @@ OnboardService.prototype.login = function(msg, res){
 var knnMatching = function(tags, userId, GroupModel, UserModel, res){
 	var reply = {};
 	var userVector = [];
+    var curUser;
 	for(var tagName : tags){
 		userVector.push(tags[tagName]);
 	}
-	var selectedTag = 
 	UserModel.find({}, function(err, users){
 		if(err){
 			console.log(err);
@@ -87,6 +87,7 @@ var knnMatching = function(tags, userId, GroupModel, UserModel, res){
 			return;
 		}
 		users.forEach(function(user){
+            if(user.userId == userId) curUser = user;
 			knn.learn(user.vector, user.groupId);
 		});
 		var resGroupId = knn.classify(userVector);
@@ -94,11 +95,26 @@ var knnMatching = function(tags, userId, GroupModel, UserModel, res){
 			group.members.push(userId);
 			group.save(function(err){
 				if(err){
-					console.
+					console.log(err);
+                    return;
 				}
 			});
 		});
-        
+        // update the groupId and the vector field of the current user
+        user.groupId = resGroupId;
+        user.vector = userVector;
+        user.save(function(err){
+            if(err){
+                console.log(err);
+                return;
+            }
+        });
+        // generate new token for the current user
+        var token = jwt.sign(user, 'secret', { expiresIn: '2 days' });
+        reply.ret = 0;
+        reply.msg = statusCode['0'];
+        reply.token = token;
+        res.send(reply);
 	});
 };
 var normalMatching = function(tags, userId, GroupModel, UserModel, res){
@@ -148,7 +164,7 @@ var normalMatching = function(tags, userId, GroupModel, UserModel, res){
     			if(err){
     				console.log(err);
     				handleError(5, res);
-    				return;
+                    return;
     			}
     		});
     	}
@@ -197,7 +213,7 @@ OnboardService.prototype.groupMatching = function(tags, token, res, threshold){
         	normalMatching(tags, userId, self.GroupModel, self.UserModel, res);
         }
         else{
-
+            knnMatching(tags, userId, self.GroupModel, self.UserModel, res);
         }
     });
 }

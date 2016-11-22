@@ -15,6 +15,7 @@ var pushNotiService;
 var app = express();
 var apiRouter = express.Router();
 
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 //app.use('/api', routesAPI);
@@ -50,7 +51,7 @@ apiRouter.use(function(req, res, next){
 apiRouter.post('api/group', function(req, res){
 	var tags = req.tags;
     var token = req.decoded;
-    onBoardService.groupMatching(tags, token, res);
+    onBoardService.groupMatching(tags, token, res, 10);
 });
 
 

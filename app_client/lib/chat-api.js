@@ -2,23 +2,30 @@ var io = require('socket.io-client');
 var events = require('events');
 var config = require('../../app_server/config');
 //var liveChatServerURL = "https://agile-savannah-12064.herokuapp.com";
-var options = {
-    transports: ['websocket'],
-	'force new connection': true
-};
+//var jwt_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJiZDNlZjA3MC1iMGZhLTExZTYtODBkOS03OTBlNjBmZjkwY2MiLCJ1c2VyTmFtZSI6IkVuem8xMjMiLCJwYXNzd29yZCI6IjA5ODc2IiwiaWF0IjoxNDc5ODUwMTY0LCJleHAiOjE0ODAwMjI5NjR9.FEBJHS-07_juaxkW5rfOEGMKDM2jz-T3dXpFD3TEwPs";
+//var expired_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhYTc1ODU4MC1iMGZhLTExZTYtODBkOS03OTBlNjBmZjkwY2MiLCJ1c2VyTmFtZSI6IlphY2gxMjMiLCJwYXNzd29yZCI6IjAxMjMzIiwiaWF0IjoxNDc5ODUwMTMyLCJleHAiOjE0ODAwMjI5MzJ9.XER5qntHEeTRnZqW4Z9znwBSohPGCiZ-gGxKp8pm_98";
+//var cur_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjNmUzZWE5MC1iOGFjLTExZTYtYTE5OS02M2IyM2UyYzIwNDciLCJ1c2VyTmFtZSI6IkhpbGxhcnlDbGludG9uIiwicGFzc3dvcmQiOiIxMjM0NSIsImlhdCI6MTQ4MDk1MzU3OCwiZXhwIjoxNDgxMTI2Mzc4fQ.2PNCMuHfDWfhCmDWPdt4122I7rUavR1cpBM48c6YxR0";
+
 
 // constructor of the chat client object
-function ChatClient(userId, groupId){
+function ChatClient(token){
+    var options = {
+        transports: ['websocket'],
+        'force new connection': true,
+        query: 'auth_token='+token
+    };
 	//this.io = require('socket.io-client');
 	if(process.env.NODE_ENV === 'production'){
 		this.client = io.connect(config.liveChatServerURL, options);
 	}
     else{
     	this.client = io.connect(config.localChatServerURL, options);
+    	//var jwt_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJiZDNlZjA3MC1iMGZhLTExZTYtODBkOS03OTBlNjBmZjkwY2MiLCJ1c2VyTmFtZSI6IkVuem8xMjMiLCJwYXNzd29yZCI6IjA5ODc2IiwiaWF0IjoxNDc5ODUwMTY0LCJleHAiOjE0ODAwMjI5NjR9.FEBJHS-07_juaxkW5rfOEGMKDM2jz-T3dXpFD3TEwPs";
+    	//this.client = io(config.localChatServerURL, { query: 'auth_token='+jwt_token });
     }
-	this.userId = userId;
-	this.groupId = groupId;
-	this.setup(userId);
+	//this.userId = userId;
+	//this.groupId = groupId;
+	this.setup();
 	this.msgStack = [];
 	this.eventEmitter = new events.EventEmitter();
 	/* make the msgStack observable by defining an event which is going to be fired
@@ -33,18 +40,23 @@ function ChatClient(userId, groupId){
     });
 }
 
-ChatClient.prototype.sendMessage = function(userName, groupId, groupName, content){
+ChatClient.prototype.sendMessage = function(content){
     var self = this;
+    //var curTime = Date.now();
     var curTime = Date.now();
-    var message = { userId: self.userId, userName: userName, groupId: groupId, 
-    	groupName: groupName, content: content, creationTime: curTime };
+    var message = { content: content, creationTime: curTime };   
     self.client.emit('sendMsg', message);
 }
 /* setup the event handlers upon instantiation of the chat client object */
-ChatClient.prototype.setup = function(userId){
+ChatClient.prototype.setup = function(){
 	var self = this;
+	// Authentication failed
+	self.client.on('error', function(err){
+		//throw new Error(err);
+		console.log(err);
+	});
 	self.client.on('connect', function(data){
-        self.client.emit('joinChatGroup', {userId: userId, groupId: self.groupId});  
+        self.client.emit('joinChatGroup');  
         self.client.on('msgReceived', function(data){
         	var msg = {
         		groupId: data.groupId,
@@ -62,7 +74,7 @@ ChatClient.prototype.setup = function(userId){
 	    });
 	    */  
 	    self.client.on('joined', function(data){
-	    	console.log("User "+data.userId+" has joined the chat group "+data.groupName+"!");
+	    	console.log("User "+data.userName+" has joined the chat group "+data.groupName+"!");
 	    });    
     });
 }
@@ -75,11 +87,11 @@ ChatClient.prototype.ready = function(){
 	var self = this;
 	return self.eventEmitter;
 }
-ChatClient.prototype.fetchHistoryMsg = function(groupId, userId){
+ChatClient.prototype.fetchHistoryMsg = function(){
     var self = this;
-    self.client.emit('fetchHistoryMsg', { groupId: groupId, userId: userId });
-    self.client.on('historyMsgReceived', function(data){
-    	console.log(data);
+    self.client.emit('fetchHistoryMsg');
+    self.client.on('historyMsgReceived', function(msgs){
+    	console.log(msgs);
     });
 }
 module.exports = ChatClient;

@@ -9,7 +9,7 @@ function ChatService(opts){
     this.groupModel = this.persistence.getModel('group');
     this.userModel = this.persistence.getModel('user');
 }
-ChatService.prototype.sendMsg = function(data){
+ChatService.prototype.sendMsg = function(token, msg){
 	console.log('running chat service: sendMsg');
     var self = this;
     /*
@@ -21,70 +21,53 @@ ChatService.prototype.sendMsg = function(data){
 	/* schema for the group chat model
     groupId, groupName, senderId, senderName, msgContent
 	*/
-	var senderName;
+    var senderId = token.userId;
+	var senderName = token.userName;
+    var groupId = token.groupId;
 	var groupName;
+    var content = msg.content;
 
 	async.series([
-        // task one: find user name
-        function(next){
-            if(data.userName){
-                senderName = data.userName;
-                next();
-            }
-            else{
-        	    userModel.findOne(
-        		    { userId: data.userId }, 
-        		    function(err, doc){
-        			    if(err) return next(err);
-        			    if(!doc){
-        				    err = 2;
-        				    self.sockets[userId].emit('msgReply', { ret: 2 });
-        				    return next(err);
-        			    }
-        			    senderName = doc.userName;
-        			    next();
-        		});
-            }
-        }, 
-        // task two: get the receivers
+        
+        // task one: get the receivers
         function(next){
         	self.groupModel.findOne(
-        		{ groupId: data.groupId },
+        		{ groupId: groupId },
         		function(err, doc){
         			if(err) return next(err);
         			if(!doc){
         				err = 3;
-        				self.sockets[data.userId].emit('msgReply', { ret: 3 });
+        				self.sockets[senderId].emit('msgReply', { ret: 3 });
         				return next(err);
         			}
-                    if(data.groupName){
-                        groupName = data.groupName;
-                    }
-                    else{
-        			    if(doc.groupName) groupName = doc.groupName;
-                    }
+        			groupName = doc.groupName;
         			if(doc.members){
         				doc.members.forEach(function(id){
-        					if(id!=data.userId) receivers.push(id);
+        					if(id!=senderId) receivers.push(id);
         				});
         			}
         			next();
         		});
         },
-        // task three: forward the message to the receivers, and store the message to db
+        // task two: forward the message to the receivers, and store the message to db
         function(next){
         	var tasks = [];
             console.log('the retrieved receivers are '+receivers);
             // store the message to db
-            var formattedTime = moment(data.creationTime).format("DD MMM YYYY hh:mm a");
-            var creationTime = data.creationTime+"&"+formattedTime;
+            var formattedTime = moment(msg.creationTime).format("DD MMM YYYY hh:mm a");
+            var creationTime = msg.creationTime+"&"+formattedTime;
+            /*
+            var dateObj = new Date(data.creationTime);
+            var formattedTime = moment(dateObj).format("DD MMM YYYY hh:mm a");
+            var creationTime = dateObj.getTime()+"&"+formattedTime;
+            */
             self.groupChatModel.create(
                 {
-                    groupId: data.groupId,
+                    groupId: groupId,
                     groupName: groupName,
-                    senderId: data.userId,
+                    senderId: senderId,
                     senderName: senderName,
-                    content: data.content,
+                    content: content,
                     creationTime: creationTime
                 },
                 function(err, doc){
@@ -96,11 +79,11 @@ ChatService.prototype.sendMsg = function(data){
         			// forward the message
                     if(self.sockets[id]){
         			    self.sockets[id].emit('msgReceived', {
-                            groupId: data.groupId,
+                            groupId: groupId,
                             groupName: groupName,
-                            senderId: data.userId,
+                            senderId: senderId,
                             senderName: senderName,
-                            content: data.content,
+                            content: content,
                             creationTime: formattedTime  
         			    });
                         console.log("The message has been sent to "+id);
@@ -115,35 +98,38 @@ ChatService.prototype.sendMsg = function(data){
 	],
 	function(err){
 		if(err) return;
-		self.sockets[data.userId].emit('msgReply', { ret: 0 });
+		self.sockets[senderId].emit('msgReply', { ret: 0 });
 	});    
 };
 
-ChatService.prototype.joinChatGroup = function(data){
+ChatService.prototype.joinChatGroup = function(token){
     var self = this;
-    var userId = data.userId;
-    var groupId = data.groupId;
+    var userId = token.userId;
+    var groupId = token.groupId;
+    var userName = token.userName;
     self.groupModel
         .findOne({groupId: groupId})
         .exec(function(err, group){
             if(err) console.log(err);
-            if(!group.members.includes(userId)){
-                group.members.push(userId);
-                group.save(function(err, group){
-                    if(err) throw err;
-                    console.log("User "+userId+" has joined the chat group!");
-                });
-            }
-            else{
-                console.log("User "+userId+" is already a member of the chat group!");
-            }
-            self.sockets[userId].emit('joined', { userId: userId, groupName: group.groupName });
+            var tasks = [];
+            group.members.forEach(function(id){
+                if(self.sockets[id] && id!=userId){
+                    tasks.push(function(callback){
+                        // notify all the other group members within that group, a new user with
+                        // userId and groupName has just joined the group
+                        self.sockets[id].emit('joined', { userName: userName, groupName: group.groupName });
+                        callback();
+                    });
+                }
+            });
+            async.parallel(tasks, function(err){ if(err) console.log(err); });
         });
 };
 
-ChatService.prototype.fetchHistoryMsg = function(data){
+ChatService.prototype.fetchHistoryMsg = function(token){
     var self = this;
-    var groupId = data.groupId;
+    var userId = token.userId;
+    var groupId = token.groupId;
     self.groupChatModel.find({groupId: groupId}, function(err, doc){
         if(err) throw err;
         var sortedArr = doc.sort(function(a, b){
@@ -154,8 +140,8 @@ ChatService.prototype.fetchHistoryMsg = function(data){
             item.creationTime = item.creationTime.split("&")[1];
             output.push(item);
         });
-        if(self.sockets[data.userId]){
-            self.sockets[data.userId].emit("historyMsgReceived", output);
+        if(self.sockets[userId]){
+            self.sockets[userId].emit("historyMsgReceived", output);
         }
     });
 };

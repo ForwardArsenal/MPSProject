@@ -1,7 +1,11 @@
 var async = require('async');
+var io = require('socket.io')
+var http = require('http');
 var ChatService = require('./services/chatService');
 var Persistence = require('./models/db');
 var config = require('./config');
+//var jwtAuth = require('socketio-jwt-auth');
+var jwt = require('jsonwebtoken');
 
 var sockets = {};
 var chatService;
@@ -23,34 +27,58 @@ var startChatService = function(next){
 }
 
 var startChatServer = function(next){
-	var httpServer = require('http').createServer();
-	var chatServer = require('socket.io')(httpServer);
+	var httpServer = http.createServer();
+	var chatServer = io(httpServer);
     httpServer.listen(process.env.PORT || config.chatServerPort, function(){
     	console.log('chat server listens at port %d', process.env.PORT || config.chatServerPort);
     });
+    // register middleware to handle authentication
+    chatServer.use(function(socket, next){
+        //console.log("Query: "+socket.handshake);
+        var token = socket.handshake.query.auth_token;
+        if(token){
+            // verifies secret and check exp
+            jwt.verify(token, 'secret', function(err, decoded){
+                if(err){
+                    next(new Error(err));
+                }
+                else{
+                    // if everything is good, save to req for use in other routes
+                    console.log("authentication success!");
+                    socket.decoded = decoded;
+                    next();
+                }
+            })
+        }   
+        else{
+            // if there's no token provided, return an error
+            next(new Error('No token provided'));
+        }
+    });
     chatServer.on('connection', function(socket){
-    	var userId;
+        var token = socket.decoded;
+        var userId = token.userId;
+        //console.log(token.userName);
     	// register listener for the registration event
     	// trigger the event only when the connection between client and server has been established for the first time.
-    	socket.on('joinChatGroup', function(data){
-            console.log('a new client with userId=%d is now connected with the chat server', data.userId);
-            if(!sockets[data.userId]){
-                userId = data.userId;
-                sockets[data.userId] = socket;
+    	socket.on('joinChatGroup', function(){
+            console.log('a new client with userId=%s is now connected with the chat server', userId);
+            if(!sockets[userId]){
+                sockets[userId] = socket;
             }
-            chatService.joinChatGroup(data);
+            chatService.joinChatGroup(token);
     	});
     	// register listener for the sendMsg event
-    	socket.on('sendMsg', function(data){
-            chatService.sendMsg(data);
+    	socket.on('sendMsg', function(msg){
+            chatService.sendMsg(token, msg);
     	});
         // register listener for the fetchHistoryMsg
-        socket.on('fetchHistoryMsg', function(data){
-            chatService.fetchHistoryMsg(data, socket);
+        socket.on('fetchHistoryMsg', function(){
+            chatService.fetchHistoryMsg(token);
         });
     	// register listener for the disconnect event
     	socket.on('disconnect', function(){
-    	    console.log('userId=%d disconnected!', userId);
+    	    console.log('userId=%s disconnected!', userId);
     		if(sockets[userId]){
                 sockets[userId].disconnect(true);
                 delete sockets[userId];

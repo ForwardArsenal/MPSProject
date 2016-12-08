@@ -10,9 +10,9 @@ var dist = function(v1, v2){
 
 var getMaxDist = function(arr){
 	var max = 0;
-	arr.forEach(function(obj)){
+	arr.forEach(function(obj){
         max = Math.max(max, obj.dist);
-	}
+	});
 	return max;
 }
 
@@ -53,17 +53,24 @@ kNN.prototype.classify = function(vector){
 	var arr = [];
 	var maxDistance = 0;
 	var pq = new PriorityQueue(function(a, b){
-		return b.dist-a.dist;
+		return a.dist-b.dist;
 	});
 	self.training.forEach(function(item){
         arr.push({ dist: dist(vector, item.vector), label: item.label });
 	});
 	for(var i=0;i<arr.length;i++){
 		pq.enq(arr[i]);
-		if(pq.size()>k){
+		if(pq.size()>self.k){
 			pq.deq();
 		}
 	}
     var resultLabel = getResultLabel(pq);
+    /*
+    while(!pq.isEmpty()){
+        var element = pq.deq();
+        console.log(element.dist+" "+element.label);
+    }
+    */
     return resultLabel;
 };
+module.exports = kNN;

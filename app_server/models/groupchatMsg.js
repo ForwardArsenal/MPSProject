@@ -2,9 +2,9 @@ var mongoose = require('mongoose');
 
 // define the schema for the groupchat collection
 var groupchatMsgSchema = new mongoose.Schema({
-	groupId: { type: Number, required: true },
+	groupId: { type: String, required: true },
 	groupName: { type: String, required: true },
-    senderId: { type: Number, required: true },
+    senderId: { type: String, required: true },
     senderName: { type: String, required: true },
     content: String,
     //timeStamp: { type: Date, default: Date.now }

@@ -1,0 +1,42 @@
+Go to the file called "package.json" in the project root directory. Change "start": "node ./bin/entry.js -s chatserver" to "start": "node ./bin/entry.js -s webserver" if you want to start a web server.
+For testing puroposes, run the webserver locally by entering "npm start" in the project root folder.
+
+1. User login
+
+1) URL: http://localhost:3000/api/login
+2) Method: POST
+3) Params: (Note that since this is a POST http request, all the params need be encapsulated in the request body)
+userName: String
+password: String/Number
+4) API returns:
+token
+ret(status code)
+msg
+
+
+2. User registration
+
+1) URL: http://localhost:3000/api/registration
+2) Method: POST
+3) Params: 
+userName: String
+password: String/Number
+4) API returns:
+token
+ret
+msg
+
+
+3. Group matching
+
+1) URL: http://localhost:3000/api/group
+2) Method: POST
+3) Params:
+token: String
+tags: Json object (a collection of name-value pairs)
+4) API returns:
+ret
+msg
+token
+groupName
+groupMembers (a list of userNames)
